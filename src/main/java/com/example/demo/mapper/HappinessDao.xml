@@ -1,9 +1,0 @@
-<mapper namespace="com.example.demo.mapper.HappinessDao">
-    <select id="findHappinessByCity" parameterType="String" resultType="com.example.demo.mapper.domain.Happiness">
-        SELECT * FROM happiness WHERE city = #{city}
-    </select>
-
-    <insert id="insertHappiness" parameterType="HashMap" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO happiness(city, num) VALUES(#{city}, #{num})
-    </insert>
-</mapper>

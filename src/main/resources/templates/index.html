@@ -1,10 +1,477 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+
+<html lang="en" xmlns:th="http://www.w3.org/1999/html">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <title>JSC Demo</title>
+
+    <link href='https://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="/jQuery-Seat-Charts/jquery.seat-charts.css">
+    <link rel="stylesheet" type="text/css" href="/style.css">
+    <link rel="stylesheet" href="/layui/css/layui.css">
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.css">
+    <script src="/layui/layui.js" charset="utf-8"></script>
 </head>
+
 <body>
-test
+    <div class="form-row m-auto">
+        <div class="col-auto my-1">
+            <button type="button" class="btn btn-primary"id="show" >显示座位 &raquo;</button>
+            <button   type="button" style="display:none"  class="btn btn-primary"id="noshow" >取消显示 &raquo;</button>
+            <button   type="button" style="display:none"  class="btn btn-primary"id="delete" >删除选中座位 &raquo;</button>
+        </div>
+        <div class="col-auto my-1 ">
+            <select id="selectBig" class="custom-select mr-sm-2" >
+                <option value="" selected="">请选择大部门</option>
+                <option value="部门" >部门</option>
+                <option value="学院">学院</option>
+            </select>
+        </div>
+        <div class="col-auto my-1">
+            <select id="selectSmall" class="custom-select mr-sm-2" >
+                <option value="" selected="">请选择小部门</option>
+
+            </select>
+        </div>
+
+        <div class="col-auto">
+            <label class="sr-only" >选座人数</label>
+            <input type="text" class="form-control mb-2" id="number" placeholder="选座人数">
+        </div>
+        <div class="col-auto">
+            <label class="sr-only" >会议主题</label>
+            <input type="text" class="form-control mb-2" id= "title" th:value="${title}"  placeholder="会议主题">
+        </div>
+        <input  hidden id="meetingId"  th:value="${meetingId}"/>
+        <div class="col-auto my-1">
+            <button type="button" class="btn btn-primary"id="smit" >提交选中 &raquo;</button>
+        </div>
+        <div class="col-auto my-1">
+            <button type="button" class="btn btn-warning" id="download" ><a  th:href="@{'/demo/download/?meetingId='+${meetingId}+'&title='+${title}}">下载安排表 &raquo;</a></button>
+        </div>
+        <div class="col-auto my-1">
+            <button type="button" class="btn btn-warning"  ><a  th:href="@{'/demo/pre/'}"+>返回主界面 &raquo;</a></button>
+        </div>
+    </div>
+
+
+<!--<form class="layui-form" action="">
+    <div class="layui-form-item">
+        <label class="layui-form-label">单行选择框</label>
+        <div class="layui-input-block">
+            <select name="interest" lay-filter="aihao">
+                <option value=""></option>
+                <option value="0">写作</option>
+                <option value="1" selected="">阅读</option>
+                <option value="2">游戏</option>
+                <option value="3">音乐</option>
+                <option value="4">旅行</option>
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">大部门选择</label>
+        <div class="layui-input-inline">
+            <select >
+                <option value="" selected="">请选择大部门</option>
+                <option value="部门" >部门</option>
+                <option value="学院">学院</option>
+            </select>
+        </div>
+        <label class="layui-form-label">小部门选择</label>
+        <div class="layui-input-inline">
+            <select id="">
+                <option value="">请选择小部门</option>
+
+            </select>
+        </div>
+        <button class="layui-btn layui-btn-danger" id="smit" >提交选中 &raquo;</button>
+    </div>
+</form>-->
+    <!--<div class="pre">
+        <select id="departmentName" name="">
+            <option value="纪检部门">纪检部门</option>
+            <option value="学校办公室">学校办公室</option>
+            <option value="组织部">组织部</option>
+            <option value="宣传部">宣传部</option>
+            <option value="统战部">统战部</option>
+            <option value="校工会">校工会</option>
+            <option value="团委">团委</option>
+            <option value="教务处">教务处</option>
+            <option value="科技处">科技处</option>
+            <option value="学工处">学工处</option>
+            <option value="研究生处">研究生处</option>
+            <option value="发展规划处">发展规划处</option>
+            <option value="国交处">国交处</option>
+            <option value="人事处">人事处</option>
+            <option value="财务处">财务处</option>
+            <option value="资产处">资产处</option>
+            <option value="公安处">公安处</option>
+            <option value="后勤处">后勤处</option>
+            <option value="基建处">基建处</option>
+            <option value="离退休处">离退休处</option>
+            <option value="审计处">审计处</option>
+            <option value="图书馆">图书馆</option>
+            <option value="网信中心">网信中心</option>
+            <option value="南管委">南管委</option>
+            <option value="东管委">东管委</option>
+            <option value="白马河">白马河</option>
+        </select>--><!--
+                    <input  hidden id="meetingId"  th:value="${meetingId}"/>
+        选座人数：<input id="number">
+        会议主题：<input  id= "title" th:value="${title}">-->
+
+<div  class="m-auto">
+    <div  class="mycontainer">
+        <div id="seat-map">
+            <div class="front-indicator">Front</div>
+        </div>
+        <div   hidden class="booking-details">
+            <h2>Booking Details</h2>
+            <h3> Selected Seats (<span id="counter">0</span>):</h3>
+            <ul id="selected-seats"></ul>
+            Total: <b>$<span id="total">0</span></b>
+            <div hidden id="legend"></div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="/jQuery-Seat-Charts/jquery.seat-charts.js"></script>
+
+<script>
+
+    layui.use('form', function(){
+        var form = layui.form; //只有执行了这一步，部分表单元素才会自动修饰成功
+
+        //……
+
+        //但是，如果你的HTML是动态生成的，自动渲染就会失效
+        //因此你需要在相应的地方，执行下述方法来手动渲染，跟这类似的还有 element.init();
+        form.render();
+    });
+
+    var firstSeatLabel = 1;
+    // 数据内部的对象必须包含属性id
+    $(document).ready(function () {
+        //联动选择监听
+        $("#selectBig").change(function(){
+            var text=$(this).val()
+
+            if(text=="部门"){
+                $("#selectSmall").empty()
+                $("#selectSmall").append("<option value='纪检部门'>纪检部门</option>");
+                $("#selectSmall").append(" <option value=\"学校办公室\">学校办公室</option>");
+                $("#selectSmall").append(" <option value=\"组织部\">组织部</option>");
+                $("#selectSmall").append(" <option value=\"宣传部\">宣传部</option>");
+                $("#selectSmall").append(" <option value=\"统战部\">统战部</option>");
+                $("#selectSmall").append("<option value=\"校工会\">校工会</option>");
+                $("#selectSmall").append("<option value=\"团委\">团委</option>");
+                $("#selectSmall").append("<option value=\"教务处\">教务处</option>");
+                $("#selectSmall").append(" <option value=\"科技处\">科技处</option>");
+                $("#selectSmall").append("<option value=\"学工处\">学工处</option>");
+                $("#selectSmall").append("<option value=\"研究生处\">研究生处</option>");
+                $("#selectSmall").append("<option value=\"发展规划处\">发展规划处</option>");
+                $("#selectSmall").append("<option value=\"国交处\">国交处</option>");
+                $("#selectSmall").append("<option value=\"人事处\">人事处</option>");
+                $("#selectSmall").append(" <option value=\"财务处\">财务处</option>");
+                $("#selectSmall").append(" <option value=\"资产处\">资产处</option>");
+                $("#selectSmall").append(" <option value=\"公安处\">公安处</option>");
+                $("#selectSmall").append("<option value=\"后勤处\">后勤处</option>");
+                $("#selectSmall").append("<option value=\"基建处\">基建处</option>");
+                $("#selectSmall").append(" <option value=\"离退休处\">离退休处</option>");
+                $("#selectSmall").append("<option value=\"审计处\">审计处</option>");
+                $("#selectSmall").append("<option value=\"图书馆\">图书馆</option>");
+                $("#selectSmall").append("<option value=\"网信中心\">网信中心</option>");
+                $("#selectSmall").append(" <option value=\"南管委\">南管委</option>");
+                $("#selectSmall").append(" <option value=\"东管委\">东管委</option>");
+                $("#selectSmall").append(" <option value=\"白马河\">白马河</option>");
+
+            }
+            else {
+                $("#selectSmall").empty()
+                $("#selectSmall").append("<option value='农学院'>农学院</option>");
+                $("#selectSmall").append("<option value='植保学院'>植保学院</option>");
+                $("#selectSmall").append("<option value='资环学院'>资环学院</option>");
+                $("#selectSmall").append("<option value='林学院'>林学院</option>");
+                $("#selectSmall").append("<option value='园艺学院'>园艺学院</option>");
+                $("#selectSmall").append("<option value='动科学院'>动科学院</option>");
+                $("#selectSmall").append("<option value='机电学院'>机电学院</option>");
+                $("#selectSmall").append("<option value='经管学院'>经管学院</option>");
+                $("#selectSmall").append("<option value='食科学院'>食科学院</option>");
+                $("#selectSmall").append("<option value='生科学院'>生科学院</option>");
+                $("#selectSmall").append("<option value='外语学院'>外语学院</option>");
+                $("#selectSmall").append("<option value='公管学院'>公管学院</option>")
+                $("#selectSmall").append("<option value='水土学院'>水土学院</option>")
+                $("#selectSmall").append("<option value='信息学院'>信息学院</option>")
+                $("#selectSmall").append("<option value='化学学院'>化学学院</option>")
+                $("#selectSmall").append("<option value='国交学院'>国交学院</option>")
+                $("#selectSmall").append("<option value='体育学院'>体育学院</option>")
+                $("#selectSmall").append("<option value='艺术学院'>艺术学院</option>")
+                $("#selectSmall").append("<option value='马院'>马院</option>")
+                $("#selectSmall").append("<option value='继教学院'>继教学院</option>")
+            }
+
+        })
+        $("#selectSmall").change(function(){
+         //   var meetingId=$("#meetingId").attr("value");
+            var department= $("#selectSmall").val();
+            $.ajax({
+                url: "/demo/queryDepartment?meetingId="+meetingId+"&department="+department, success: function (result) {
+                    console.log(eval(result).length)
+                    $("#number").val(eval(result).length)
+
+                    //  sc.get(eval(result)).statu
+                    //  s('unavailable');
+                }
+            });
+        })
+        var data1 = [
+            ['41','39','37','35','33','31','29','27','25','23','21','19','17',"-",'15','13','11','9','7','5','3','1','2','4','6','8','10','12','14','16',"-",'18','20','22','24','26','28','30','32','34','36','38','40','42'],
+            ['41','39','37','35','33','31','29','27','25','23','21','19','17',"-",'15','13','11','9','7','5','3','1','2','4','6','8','10','12','14','16',"-",'18','20','22','24','26','28','30','32','34','36','38','40','42'],
+            ['41','39','37','35','33','31','29','27','25','23','21','19','17',"-",'15','13','11','9','7','5','3','1','2','4','6','8','10','12','14','16',"-",'18','20','22','24','26','28','30','32','34','36','38','40','42'],
+            ['41','39','37','35','33','31','29','27','25','23','21','19','17',"-",'15','13','11','9','7','5','3','1','2','4','6','8','10','12','14','16',"-",'18','20','22','24','26','28','30','32','34','36','38','40','42'],
+            ['41','39','37','35','33','31','29','27','25','23','21','19','17',"-",'15','13','11','9','7','5','3','1','2','4','6','8','10','12','14','16',"-",'18','20','22','24','26','28','30','32','34','36','38','40','42'],
+            ['41','39','37','35','33','31','29','27','25','23','21','19','17',"-",'15','13','11','9','7','5','3','1','2','4','6','8','10','12','14','16',"-",'18','20','22','24','26','28','30','32','34','36','38','40','42'],
+            ['41','39','37','35','33','31','29','27','25','23','21','19','17',"-",'15','13','11','9','7','5','3','1','2','4','6','8','10','12','14','16',"-",'18','20','22','24','26','28','30','32','34','36','38','40','42'],
+           /**/ ['39','35','33','31','29','27','25','23','21','19','17','15','13',"-","-","-",'11','9','7','5','3','1','2','4','6','8','10','12','-','-',"-",'14','16','18','20','22','24','26','28','30','32','34','36','38'],
+            ['39','35','33','31','29','27','25','23','21','19','17','15','13',"-","-","-",'11','9','7','5','3','1','2','4','6','8','10','12','-','-',"-",'14','16','18','20','22','24','26','28','30','32','34','36','38'],
+            ['39','35','33','31','29','27','25','23','21','19','17','15','13',"-","-","-",'11','9','7','5','3','1','2','4','6','8','10','12','-','-',"-",'14','16','18','20','22','24','26','28','30','32','34','36','38'],
+            ['39','35','33','31','29','27','25','23','21','19','17','15','13',"-","-","-",'11','9','7','5','3','1','2','4','6','8','10','12','-','-',"-",'14','16','18','20','22','24','26','28','30','32','34','36','38'],
+            ['39','35','33','31','29','27','25','23','21','19','17','15','13',"-","-","-",'11','9','7','5','3','1','2','4','6','8','10','12','-','-',"-",'14','16','18','20','22','24','26','28','30','32','34','36','38'],
+            ['39','35','33','31','29','27','25','23','21','19','17','15','13',"-","-","-",'11','9','7','5','3','1','2','4','6','8','10','12','-','-',"-",'14','16','18','20','22','24','26','28','30','32','34','36','38'],
+            ['39','35','33','31','29','27','25','23','21','19','17','15','13',"-","-","-",'11','9','7','5','3','1','2','4','6','8','10','12','-','-',"-",'14','16','18','20','22','24','26','28','30','32','34','36','38'],
+        ];
+        var $cart = $('#selected-seats'),
+            $counter = $('#counter'),
+            $total = $('#total'),
+            sc = $('#seat-map').seatCharts({
+                map: [
+                    '____eeeeeeeee_eeeeeeeeeeeeeeee_eeeeeeeee____',
+                    '___eeeeeeeeee_eeeeeeeeeeeeeeee_eeeeeeeeee___',
+                    '__eeeeeeeeeee_eeeeeeeeeeeeeeee_eeeeeeeeeee__',
+                    '_eeeeeeeeeeee_eeeeeeeeeeeeeeee_eeeeeeeeeeee_',
+                    '_eeeeeeeeeeee_eeeeeeeeeeeeeeee_eeeeeeeeeeee_',
+                    'eeeeeeeeeeeee_eeeeeeeeeeeeeeee_eeeeeeeeeeeee',
+                    'eeeeeeeeeeeee_eeeeeeeeeeeeeeee_eeeeeeeeeeeee',
+                    '___eeeeeeeeee___eeeeeeeeeeee___eeeeeeeeee___',
+                    '___eeeeeeeeee___eeeeeeeeeeee___eeeeeeeeee___',
+                    '___eeeeeeeeee___eeeeeeeeeeee___eeeeeeeeee___',
+                    '___eeeeeeeeee___eeeeeeeeeeee___eeeeeeeeee___',
+                    '____eeeeeeeee___eeeeeeeeeeee___eeeeeeeee____',
+                    '_____eeeeeeee___eeeeeeeeeeee___eeeeeeee_____',
+                    '_____eeeeeeee___eeeeeeeeeeee___eeeeeeee_____',
+                ],
+                seats: {
+                    f: {
+                        price: 100,
+                        classes: 'first-class', //your custom CSS class
+                        category: 'First Class'
+                    },
+                    e: {
+                        price: 1,
+                        classes: 'economy-class', //your custom CSS class
+                        category: 'Economy Class'
+                    }
+
+                },
+                naming: {
+                    top: false,
+                    getLabel: function (character, row, column) {
+                        return   data1[row-1][column-1];
+                    },
+
+                },
+                legend: {
+                    node: $('#legend'),
+                    items: [
+                        ['f', 'available', 'First Class'],
+                        ['e', 'available', 'Economy Class'],
+                        ['f', 'unavailable', 'Already Booked']
+                    ]
+                },
+                click: function () {
+                    if (this.status() == 'available') {
+                        //检查选中座位与预定座位
+                        var number = parseInt($("#number").val())
+                        var title = $("#title").attr("value")
+                        if(isNaN(number)) {
+                            alert("请填写参会人数")
+                            return 'available';
+                        }
+                        var seletedNumber = sc.find('selected').length;
+                        if (seletedNumber >= number) {
+                            alert("选中座位大于预定座位")
+                            return 'available';
+                        }
+                        //let's create a new <li> which we'll add to the cart items
+                        $('<li>' + this.data().category + ' Seat # ' + this.settings.label + ': <b>$' + this.data().price + '</b> <a href="#" class="cancel-cart-item">[cancel]</a></li>')
+                            .attr('id', 'cart-item-' + this.settings.id)
+                            .data('seatId', this.settings.id)
+                            .appendTo($cart);
+
+                        /*
+                         * Lets update the counter and total
+                         *
+                         * .find function will not find the current seat, because it will change its stauts only after return
+                         * 'selected'. This is why we have to add 1 to the length and the current seat price to the total.
+                         */
+                        $counter.text(sc.find('selected').length + 1);
+                        $total.text(recalculateTotal(sc) + this.data().price);
+
+                        return 'selected';
+                    } else if (this.status() == 'selected') {
+                        //update the counter
+                        sc.find('selected')
+                        $counter.text(sc.find('selected').length - 1);
+                        //and total
+                        $total.text(recalculateTotal(sc) - this.data().price);
+
+                        //remove the item from our cart
+                        $('#cart-item-' + this.settings.id).remove();
+
+                        //seat has been vacated
+                        return 'available';
+                    } else if (this.status() == 'unavailable') {
+                        //seat has been already booked
+                        return 'unavailable';
+                    } else {
+                        return this.style();
+                    }
+                }
+            });
+
+        //this will handle "[cancel]" link clicks
+        $('#selected-seats').on('click', '.cancel-cart-item', function () {
+            //let's just trigger Click event on the appropriate seat, so we don't have to repeat the logic here
+            sc.get($(this).parents('li:first').data('seatId')).click();
+        });
+        //提交选中座位
+        $('#smit').on('click', function () {
+            var number = parseInt($("#number").val())
+            var seletedNumber = sc.find('selected').length;
+            if(number!=seletedNumber){
+                alert("请选中至少"+number+"个座位")
+                return;
+            }
+            var lists = []
+            $("#selected-seats li").each(function () {
+                lists.push($(this).attr('id').toString().slice(10))
+              //  console.log($(this).attr('id').toString().slice(10))
+                $(this).remove()
+            })
+            var meetingId=$("#meetingId").attr("value");
+            var  departmentName=$("#selectSmall").val()
+            if(departmentName=="") {
+                alert("请选择部门")
+                return;
+            }
+            //TODO 后台对接
+            $.ajax({
+                type:"POST",
+                async:false,
+                contentType : "application/json",
+                url:"/demo/insert?meetingId="+meetingId+"&number="+number+"&departmentName="+departmentName,
+                data: JSON.stringify(lists),
+                success:function (data) {
+                     alert("安排座位成功！")
+                }
+            });
+            sc.get(lists).status("unavailable")
+        });
+
+        $('#show').on('click', function () {
+            var department= $("#selectSmall").val();
+            if(department=="") return;
+            $.ajax({
+                url: "/demo/queryDepartment?meetingId="+meetingId+"&department="+department, success: function (result) {
+                   // console.log(result)
+                    eval(result).forEach(function(value,i){
+                       $("#"+value).css("background-color","blue");
+
+                    })
+                    $('#number').val(eval(result).length)
+                    $('#show').hide();
+                    $('#noshow').show();
+                    $('#delete').show();
+               //     $('#number').hide();
+                    $('#smit').hide();
+
+                  //  sc.get(eval(result)).status('unavailable');
+                }
+            });
+        })
+        $('#noshow').on('click', function () {
+            var department= $("#selectSmall").val();
+            if(department=="") return;
+            $.ajax({
+                url: "/demo/queryDepartment?meetingId="+meetingId+"&department="+department, success: function (result) {
+                     console.log("test")
+                    eval(result).forEach(function(value,i){
+                        $("#"+value).css("background-color","#472B34");
+
+                    })
+                    $('#show').show();
+                    $('#noshow').hide();
+                    $('#delete').hide();
+                    $('#number').val("")
+                 //   $('#number').show();
+                    $('#smit').show();
+                    //  sc.get(eval(result)).statu
+                    //  s('unavailable');
+                }
+            });
+        })
+        $('#delete').on('click', function () {
+            var result = confirm('是否删除？');
+            if (result) {
+                var meetingId=$("#meetingId").attr("value");
+                var  departmentName=$("#selectSmall").val()
+                $.ajax({
+                    type:"POST",
+                    async:false,
+                    contentType : "application/json",
+                    url:"/demo/deleteSeat?meetingId="+meetingId+"&departmentName="+departmentName,
+                    success:function (result) {
+                        console.log(result)
+                       sc.get(eval(result)).status('available');
+                        eval(result).forEach(function(value,i){
+                            //sc.get(value).status('available');
+                            $("#"+value).css("background-color","");
+                            $("#"+value).removeClass("unavailable");
+                            $("#"+value).addClass("available");
+                        })
+                        alert("删除座位成功！")
+                    }
+                });
+            } else {
+
+            }
+        })
+        //渲染之前选中的座位
+        var meetingId=$("#meetingId").attr("value");
+        console.log(meetingId)
+
+        $.ajax({
+            url: "/demo/query?meetingId="+meetingId, success: function (result) {
+                console.log(result)
+                sc.get(eval(result)).status('unavailable');
+            }
+        });
+
+
+    });
+
+    function recalculateTotal(sc) {
+        var total = 0;
+
+        //basically find every selected seat and sum its price
+        sc.find('selected').each(function () {
+            total += this.data().price;
+        });
+
+        return total;
+    }
+
+</script>
 </body>
 </html>
